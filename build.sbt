@@ -8,6 +8,8 @@ scalaVersion := "2.11.6"
 
 libraryDependencies += "org.scalamock" %% "scalamock-scalatest-support" % "3.2" % "test"
 
+libraryDependencies += "com.github.mrmechko" %% "swordnet" % "1.0"
+
 libraryDependencies := {
   CrossVersion.partialVersion(scalaVersion.value) match {
     // if scala 2.11+ is used, add dependency on scala-xml module
