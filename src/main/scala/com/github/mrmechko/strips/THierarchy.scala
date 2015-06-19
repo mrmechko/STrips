@@ -1,7 +1,8 @@
 package com.github.mrmechko.strips
 
-import com.github.mrmechko.swordnet.{SRelationType, SKey}
+import com.github.mrmechko.swordnet.structures.{SSynset, SRelationType, SKey}
 
+import scala.io.Source
 import scala.xml.XML
 
 /**
@@ -15,8 +16,9 @@ object THierarchy {
   }
   var _ancestor = Map[TConcept, TConcept]()
   var _children = Map[TConcept, Set[TConcept]]()
-  var _toWordNet = Map[TConcept, Set[SKey]]()
-  var _fromWordNet = Map[SKey, TConcept]()
+  var _toWordNet = Map[TConcept, Set[Int]]()
+  var _fromWordNet = Map[Int, TConcept]()
+  var _lexicon = Map[String, Set[TConcept]]()
 
   /**
    * returns a trips type for a wordnet synset.
@@ -24,15 +26,15 @@ object THierarchy {
    * @param blocked
    * @return
    */
-  def fromWordNet(key : SKey, blocked : Seq[SKey] = Seq()) : Seq[TConcept] = {
+  def fromWordNet(key : SKey, blocked : Seq[Int] = Seq()) : Seq[TConcept] = {
     var found : Seq[TConcept] = Seq()
 
-    if (blocked.contains(key.head)) {
+    if (blocked.contains(key.synset)) {
       Seq()
     } else {
-      _fromWordNet.get(key.head) match {
+      _fromWordNet.get(key.offset) match {
         case Some(s) => Seq(s)
-        case None => key.getRelation(SRelationType.hypernym).map(h => fromWordNet(h, blocked.+:(key.head))).distinct.flatten
+        case None => key.hasSemantic(SRelationType.hypernym).flatMap(s=>s.keys).map(h => fromWordNet(h, blocked.+:(key.offset))).distinct.flatten
       }
     }
   }
@@ -62,9 +64,9 @@ object LoadTrips {
   }
 
   def loaded = _loaded
-  def apply(source : String = "/Users/mechko/nlpTools/trips-ont-dsl.xml") = {
+  def apply(source : String = "/Users/mechko/nlpTools/") = {
     _loaded = true
-    val xml = XML.loadFile(source)
+    val xml = XML.loadFile(source+"trips-ont-dsl.xml")
 
     //System.err.println("loading trips...")
     (xml \\ "dsl" \ "concept") foreach {concept =>
@@ -89,20 +91,13 @@ object LoadTrips {
         } else if (relName == "overlap") { //All wordnet concepts are of type overlap
           //Normalize the loaded key to head (?)
           // TODO: Verify this with either Will or James.  Some lexical information may be lost.
-          val wn = relVals filter {rv=> rv startsWith "wn::"} map(m=>{
-            val sn = SKey(normalizeSenseKey((m trim).stripPrefix("wn::|").stripSuffix("|") toLowerCase))
-            sn.headOption match {
-              case Some(mt) => mt
-              case None => {
-                println("falling back")
-                sn
-              }
-            }
-          })
+          val wn = relVals.filter(rv=> rv startsWith "wn::").map(m=>{
+            SKey.get(normalizeSenseKey((m trim).stripPrefix("wn::|").stripSuffix("|") toLowerCase))
+          }).collect{case Some(x) => x}
           wn foreach { rv =>
-            THierarchy._fromWordNet = THierarchy._fromWordNet.updated(rv, conceptName)
+            THierarchy._fromWordNet = THierarchy._fromWordNet.updated(rv.offset, conceptName)
           }
-          THierarchy._toWordNet = THierarchy._toWordNet.updated(conceptName, wn.toSet)
+          THierarchy._toWordNet = THierarchy._toWordNet.updated(conceptName, wn.map(_.offset).toSet)
         }
       }
 
@@ -115,21 +110,12 @@ object LoadTrips {
       }, featsInherit.distinct))
     }
     THierarchy._init_children
+    THierarchy._lexicon = Source.fromFile(source+"lexicon.trips").getLines.flatMap(l => {
+      val line = l.stripLineEnd.split("\t")
+      line.tail.map(w => (line.head->w))
+    }).toList.groupBy(g => g._2).mapValues(s => s.map(_._1).map(c => TConcept("ont::"+c)).toSet).withDefaultValue(Set())
   }
 
 
 }
 
-/**object SadMummyTest extends App {
-  //LoadTrips()
-
-  //LoadSimpleWordNet()
-
-  println(TripsConcept("ont::accept").ancestor)
-  println(TripsConcept("ont::accept").wordnetKeys)
-  println(TripsConcept("ont::agent-interaction").features)
-
-  TripsFeatureTemplate.index.keys foreach { tft => TripsConcept(tft).features }
-
-  TripsHierarchy.fromWordNet(SimpleWordNetKey("dog%1:05:00::")).foreach(println)
-}**/
