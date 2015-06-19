@@ -2,13 +2,17 @@ name := "strips"
 
 organization := "com.github.mrmechko"
 
-version := "1.0-SNAPSHOT"
+version := "1.2.0-SNAPSHOT"
 
 scalaVersion := "2.11.6"
 
+resolvers += Resolver.sonatypeRepo("releases")
+
+resolvers += Resolver.sonatypeRepo("snapshots")
+
 libraryDependencies += "org.scalamock" %% "scalamock-scalatest-support" % "3.2" % "test"
 
-libraryDependencies += "com.github.mrmechko" %% "swordnet" % "1.0"
+libraryDependencies += "com.github.mrmechko" %% "swordnet" % "2.0-SNAPSHOT"
 
 libraryDependencies := {
   CrossVersion.partialVersion(scalaVersion.value) match {

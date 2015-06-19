@@ -1,7 +1,6 @@
-package com.github.mrmechko.trips
+package com.github.mrmechko.strips
 
-import com.github.mrmechko.swordnet.{SKey, SRelationType}
-
+import com.github.mrmechko.swordnet.{SRelationType, SKey}
 
 import scala.xml.XML
 
@@ -46,7 +45,7 @@ object THierarchy {
 
 
 object LoadTrips {
-  var source = "/Users/mechko/nlpTools/trips-ont-dsl.xml"
+  
 
   private var _loaded : Boolean = false
 
@@ -63,7 +62,7 @@ object LoadTrips {
   }
 
   def loaded = _loaded
-  def apply() = {
+  def apply(source : String = "/Users/mechko/nlpTools/trips-ont-dsl.xml") = {
     _loaded = true
     val xml = XML.loadFile(source)
 

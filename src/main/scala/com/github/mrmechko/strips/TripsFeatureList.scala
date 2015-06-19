@@ -1,4 +1,4 @@
-package com.github.mrmechko.trips
+package com.github.mrmechko.strips
 
 /**
  * Created by mechko on 3/26/15.

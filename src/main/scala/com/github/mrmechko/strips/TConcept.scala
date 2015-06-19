@@ -1,4 +1,4 @@
-package com.github.mrmechko.trips
+package com.github.mrmechko.strips
 
 import com.github.mrmechko.swordnet.SKey
 

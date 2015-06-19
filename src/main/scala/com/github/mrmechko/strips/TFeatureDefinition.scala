@@ -1,4 +1,4 @@
-package com.github.mrmechko.trips
+package com.github.mrmechko.strips
 
 /**
  * Object for TripsFeatureDefinitions.
