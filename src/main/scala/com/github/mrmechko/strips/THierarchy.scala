@@ -64,7 +64,7 @@ object LoadTrips {
   }
 
   def loaded = _loaded
-  def apply(source : String = "/Users/mechko/nlpTools/") = {
+  def apply(source : String = "/Users/mechko/nlpTools/flaming-tyrion/") = {
     _loaded = true
     val xml = XML.loadFile(source+"trips-ont-dsl.xml")
 
