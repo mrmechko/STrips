@@ -12,7 +12,7 @@ object STripsQuery {
   def findWord(lemma : String) : Set[TConcept] = {
     SWordNet.l2S(lemma).map(key => {
       THierarchy.fromWordNet(key)
-    }).flatten.distinct.toSet ++*/ THierarchy._lexicon(lemma)
+    }).flatten.distinct.toSet ++ THierarchy._lexicon(lemma)
   }
 
   def findWord(lemma : String, pos : SPos) : Set[TConcept] = {
