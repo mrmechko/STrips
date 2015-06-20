@@ -15,10 +15,24 @@ object STripsQuery {
     }).flatten.distinct.toSet ++ THierarchy._lexicon(lemma)
   }
 
+  def fromLexicon(lemma : String) : Set[TConcept] = THierarchy._lexicon(lemma)
+
+  def findWordBySense(lemma : String) : Set[(SKey, TConcept)] = {
+    SWordNet.l2S(lemma).map(key => {
+      THierarchy.fromWordNet(key).map(t => (key,t))
+    }).flatten.toSet
+  }
+
   def findWord(lemma : String, pos : SPos) : Set[TConcept] = {
     SWordNet.lp2S(lemma, pos).map(key => {
       THierarchy.fromWordNet(key)
     }).flatten.distinct.toSet ++ THierarchy._lexicon(lemma)
+  }
+
+  def findWordBySense(lemma : String, pos : SPos) : Set[(SKey, TConcept)] = {
+    SWordNet.lp2S(lemma, pos).map(key => {
+      THierarchy.fromWordNet(key).map(t => (key,t))
+    }).flatten.toSet
   }
 
   def pathToRoot(concept : TConcept) : Seq[TConcept] = {
