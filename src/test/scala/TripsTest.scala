@@ -1,10 +1,14 @@
+/*
 import com.github.mrmechko.strips.{THierarchy, LoadTrips, TConcept}
+
 import com.github.mrmechko.strips.simple.STripsQuery
 import org.scalatest.{FlatSpec, Matchers}
+ */
 
 /**
  * Created by mechko on 6/19/15.
  */
+/**
 class BaseTest extends FlatSpec with Matchers {
   def h(lemma : TConcept) = println(STripsQuery.pathToRoot(lemma).map(_.name).mkString("%s: [".format(lemma.name), ", ", "]"))
   def f(lemma : String) = println(STripsQuery.findWord(lemma).map(_.name).mkString("%s: [".format(lemma), ", ", "]"))
@@ -37,3 +41,4 @@ class BaseTest extends FlatSpec with Matchers {
     h(TConcept("ont::pass"))
   }
 }
+**/
