@@ -13,7 +13,7 @@ import scala.util.Random
 
 class DoesNotCrashTest extends FlatSpec with Matchers {
 
-  val ont = STripsOntology.readTripsOntologyXML("/Users/mechko/nlpTools/flaming-tyrion/lexicon/lexicon/data/")
+  val ont = STripsOntology.readTripsOntologyXML()
 
   "A STripsOntItem" should "be jsonifyable" in {
     ont.nodes.foreach { n =>
