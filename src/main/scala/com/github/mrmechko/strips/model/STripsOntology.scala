@@ -3,6 +3,7 @@ package com.github.mrmechko.strips.model
 import java.io.File
 
 import com.github.mrmechko.swordnet.structures.{SRelationType, SKey, SPos}
+import com.typesafe.config.ConfigFactory
 
 import scala.xml.{NodeSeq, XML}
 
@@ -45,6 +46,8 @@ case class STripsOntology(version : String, nodes : List[STripsOntItem], words :
 
 object STripsOntology {
 
+  val defaultPath : String = ConfigFactory.load().getString("strips.XMLSource")
+
   def getListOfSubDirectories(directoryName: String, prefix : String): Array[String] = {
     return (new File(directoryName)).listFiles.filter(f => f.isFile && f.getName.startsWith(prefix)).map(_.getName)
   }
@@ -62,7 +65,7 @@ object STripsOntology {
   }
   private def nodeSeq2FeatureTempl(n : NodeSeq) : SFeatureTemplate = SFeatureTemplate.build("empty", List(), Map())
 
-  def readTripsOntologyXML(path2directory:String) : STripsOntology = {
+  def readTripsOntologyXML(path2directory:String = defaultPath) : STripsOntology = {
 
     System.err.println("loading words...")
     val words = readTripsLexiconKeys(path2directory)
@@ -98,7 +101,7 @@ object STripsOntology {
     STripsOntology("v1.0", ontItems.map(_._1), words, ontItems.map(x => x._1.name -> x._2).toMap)
   }
 
-  def readTripsLexiconKeys(path2directory:String): List[STripsWord] = {
+  def readTripsLexiconKeys(path2directory:String = defaultPath): List[STripsWord] = {
     getListOfSubDirectories(path2directory, "W::")/*.filter(_.toLowerCase().startsWith("w::a"))*/.flatMap(e => {
       val f = XML.loadFile(path2directory+e)
       val word = (f \\ "WORD" \ "@name").text

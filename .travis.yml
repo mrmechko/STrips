@@ -3,5 +3,8 @@ scala:
    - 2.11.6
    - 2.10.4
 
+env:
+- STRIPSXMLPATH="./flaming-tyrion/lexicon/data/"
+install: ./install.sh
 script: "sbt clean coverage test"
 after_success: "sbt coveralls"
