@@ -67,7 +67,6 @@ object STripsOntology {
 
   def readTripsOntologyXML(path2directory:String = defaultPath) : STripsOntology = {
 
-    System.err.println("loading words...")
     val words = readTripsLexiconKeys(path2directory)
     val ontname2word = words.flatMap(x => x.ontTypes.map(y => y -> x)).groupBy(v => v._1).mapValues(x=>x.map(_._2))
     System.err.println("loading ontItems...")
@@ -102,6 +101,7 @@ object STripsOntology {
   }
 
   def readTripsLexiconKeys(path2directory:String = defaultPath): List[STripsWord] = {
+    System.err.println("loading words from "+path2directory)
     getListOfSubDirectories(path2directory, "W::")/*.filter(_.toLowerCase().startsWith("w::a"))*/.flatMap(e => {
       val f = XML.loadFile(path2directory+e)
       val word = (f \\ "WORD" \ "@name").text
