@@ -1,12 +1,9 @@
 package com.github.mrmechko.strips.simple
-
+/**
 import com.github.mrmechko.strips.{THierarchy, TConcept}
 import com.github.mrmechko.swordnet.SWordNet
 import com.github.mrmechko.swordnet.structures.{SPos, SKey}
 
-/**
- * Created by mechko on 6/19/15.
- */
 object STripsQuery {
 
   def findWord(lemma : String) : Set[TConcept] = {
@@ -43,3 +40,4 @@ object STripsQuery {
   }
 
 }
+**/
