@@ -36,7 +36,7 @@ case class STripsOntology(version : String, nodes : List[STripsOntItem], words :
       senseMap.get(sense) match {
         case Some(x) => x
         case None => {
-          SKey(sense).hasSemantic(SRelationType.hypernym).flatMap(_.keys).distinct.flatMap(k => findSenseClasses(sense, ignore.+(sense))).distinct.toList
+          SKey(sense).hasSemantic(SRelationType.hypernym).flatMap(_.keys).distinct.flatMap(k => findSenseClasses(k.key, ignore.+(sense))).distinct.toList
         }
       }
     }
