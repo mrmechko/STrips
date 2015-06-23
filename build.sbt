@@ -14,6 +14,8 @@ libraryDependencies += "org.scalamock" %% "scalamock-scalatest-support" % "3.2" 
 
 libraryDependencies += "com.github.mrmechko" %% "swordnet" % "2.0-SNAPSHOT"
 
+libraryDependencies += "com.typesafe.play" %% "play-json" % "2.4.0"
+
 libraryDependencies := {
   CrossVersion.partialVersion(scalaVersion.value) match {
     // if scala 2.11+ is used, add dependency on scala-xml module

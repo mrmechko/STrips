@@ -11,7 +11,7 @@ case class STripsWord(id : String, value : String, pos : SPos, ontTypes : List[S
 object STripsWord extends IdentifiableCompanion{
   override def prefix: String = "W::"
 
-  def apply(value : String, pos : SPos, ontTypes : List[STripsOntName]) : STripsWord = {
+  def build(value : String, pos : SPos, ontTypes : List[STripsOntName]) : STripsWord = {
     STripsWord(prefix+value.stripPrefix(prefix)+"_%s".format(pos.asString), value, pos, ontTypes)
   }
 

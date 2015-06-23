@@ -5,7 +5,7 @@ case class STripsOntName(id : String, name : String) extends UniquelyIdentifiabl
 object STripsOntName extends IdentifiableCompanion {
   override def prefix: String = "ONT::"
 
-  def apply(name : String) : STripsOntName = {
+  def build(name : String) : STripsOntName = {
     if(name.startsWith(prefix)) STripsOntName(name, name)
     else STripsOntName(prefix+name, name)
   }

@@ -7,15 +7,14 @@ import com.github.mrmechko.swordnet.structures.SPos
 import scala.xml.{NodeSeq, XML}
 
 
-case class STripsOntology(version : String, nodes : List[STripsOntItem], words : List[STripsWord])
+case class STripsOntology(version : String, nodes : List[STripsOntItem], words : List[STripsWord], inheritance : Map[STripsOntName, STripsOntName])
 
-object STripsOntology extends App {
+object STripsOntology {
 
   def getListOfSubDirectories(directoryName: String, prefix : String): Array[String] = {
     return (new File(directoryName)).listFiles.filter(f => f.isFile && f.getName.startsWith(prefix)).map(_.getName)
   }
 
-  readTripsOntologyXML("/Users/mechko/nlpTools/flaming-tyrion/lexicon/lexicon/data/").nodes.foreach(println)
 
   private def nodeSeq2Features(n : NodeSeq) : List[(SFeatureType, SFeatureVal)] = List()
   private def nodeSeq2Frame(n : NodeSeq) : List[SFrame] = {
@@ -27,7 +26,7 @@ object STripsOntology extends App {
       SFrame(role, optionality, fltype, List())
     }).toList
   }
-  private def nodeSeq2FeatureTempl(n : NodeSeq) : SFeatureTemplate = SFeatureTemplate("empty", List(), Map())
+  private def nodeSeq2FeatureTempl(n : NodeSeq) : SFeatureTemplate = SFeatureTemplate.build("empty", List(), Map())
 
   def readTripsOntologyXML(path2directory:String) : STripsOntology = {
 
@@ -46,22 +45,23 @@ object STripsOntology extends App {
        * frame        : List[SFrame]
        **/
 
-      println((f \\ "@name").text)
-      val name = STripsOntName((f \\ "@name").text)
 
-      val parent = (f \\ "@parent").text
+      val name = STripsOntName.build(f.\@("name"))
+
+      val parent = STripsOntName.build(f \@ "parent")
+
       val semFeats = (f \\ "SEM")
       val features = nodeSeq2FeatureTempl(semFeats \ "FEATURES") // figure out how to parse this
       val frames = nodeSeq2Frame(f \ "ARGUMENT")
-      //lexical items should get loaded from the preloaded thingy TODO
-      val wordnet = (f \ "MAPPING").filter(m => (m \\ "@to").text == "wordnet").map(m => (m\\"@name").text).toList
+
+      val wordnet = (f \ "MAPPING").filter(m => (m \@ "to") == "wordnet").map(_ \@ "name").toList
 
       val wordList = ontname2word.getOrElse(name, List[STripsWord]())
-      printf("found: %s\n\tchild-of: %s\n\twithSenses: %s\n\twithWords: %s\n-\n", name.id, parent, wordnet.mkString(", "), wordList.map(_.id).mkString(", "))
-      STripsOntItem(name, wordList, wordnet, features, frames)
+      //printf("found: %s\n\tchild-of: %s\n\twithSenses: %s\n\twithWords: %s\n-\n", name.id, parent, wordnet.mkString(", "), wordList.map(_.id).mkString(", "))
+      (STripsOntItem.build(name, wordList, wordnet, features, frames), parent)
     }).toList
 
-    STripsOntology("v1.0", ontItems, words)
+    STripsOntology("v1.0", ontItems.map(_._1), words, ontItems.map(x => x._1.name -> x._2).toMap)
   }
 
   def readTripsLexiconKeys(path2directory:String): List[STripsWord] = {
@@ -71,8 +71,8 @@ object STripsOntology extends App {
       //printf("W::%s\n", word)
 
       (f \ "POS").map(n => {
-        val types = ((n \ "CLASS") \\ "@onttype").map(onttype => STripsOntName(onttype.text)).toList
-        STripsWord(value = word, pos = SPos((n \\ "@name").text), ontTypes = types)
+        val types = ((n \ "CLASS") \\ "@onttype").map(onttype => STripsOntName.build(onttype.text)).toList
+        STripsWord.build(value = word, pos = SPos((n \\ "@name").text), ontTypes = types)
       }).map(x => {
         //println(x)
         x

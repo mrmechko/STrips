@@ -17,7 +17,7 @@ case class STripsOntItem(id : String,
 object STripsOntItem extends IdentifiableCompanion{
   override def prefix: String = "ONT::"
 
-  def apply(
+  def build(
              name : STripsOntName,
              lexicalItems : List[STripsWord],
              wordnetKeys : List[String],

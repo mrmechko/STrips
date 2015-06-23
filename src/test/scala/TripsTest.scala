@@ -1,13 +1,47 @@
 /*
 import com.github.mrmechko.strips.{THierarchy, LoadTrips, TConcept}
 
-import com.github.mrmechko.strips.simple.STripsQuery
-import org.scalatest.{FlatSpec, Matchers}
- */
+import com.github.mrmechko.strips.simple.STripsQuery*/
 
-/**
- * Created by mechko on 6/19/15.
- */
+import com.github.mrmechko.strips.model.{STripsWord, STripsOntItem, STripsOntology}
+import org.scalatest.{FlatSpec, Matchers}
+import play.api.libs.json.Json
+import com.github.mrmechko.strips.json.Implicits._
+
+import scala.util.Random
+
+class DoesNotCrashTest extends FlatSpec with Matchers {
+
+  val ont = STripsOntology.readTripsOntologyXML("/Users/mechko/nlpTools/flaming-tyrion/lexicon/lexicon/data/")
+
+  "A STripsOntItem" should "be jsonifyable" in {
+    ont.nodes.foreach { n =>
+      val json = Json.toJson(n)
+      val redeemed = Json.fromJson[STripsOntItem](json)
+
+      redeemed.get.toString shouldBe n.toString
+    }
+  }
+
+  "A STripsWord" should "be jsonifyable" in {
+    ont.words.foreach { n =>
+      val json = Json.toJson(n)
+      val redeemed = Json.fromJson[STripsWord](json)
+      redeemed.get.toString shouldBe n.toString
+    }
+  }
+
+
+  "The Trips Hierarchy" should "be jsonifyable" in {
+    val json = Json.toJson(ont)
+    println("jsonified")
+    val redeemed = Json.fromJson[STripsOntology](json)
+
+    println("redeemed")
+    ont.toString shouldBe redeemed.get.toString
+  }
+}
+
 /**
 class BaseTest extends FlatSpec with Matchers {
   def h(lemma : TConcept) = println(STripsQuery.pathToRoot(lemma).map(_.name).mkString("%s: [".format(lemma.name), ", ", "]"))

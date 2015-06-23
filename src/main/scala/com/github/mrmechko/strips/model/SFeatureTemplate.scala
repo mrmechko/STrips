@@ -8,7 +8,7 @@ object SFeatureTemplateName extends IdentifiableCompanion {
   private case class SFeatureTemplateNameImpl(id : String) extends SFeatureTemplateName
 
   def apply(name : String) : SFeatureTemplateName = {
-    SFeatureTemplateNameImpl(prefix + name)
+    SFeatureTemplateNameImpl(generateId(name))
   }
 }
 
@@ -16,7 +16,7 @@ case class SFeatureTemplate(id : String, name : SFeatureTemplateName, parents : 
 
 object SFeatureTemplate extends IdentifiableCompanion {
   override def prefix: String = "T::"
-  def apply(name : String, parents : List[SFeatureTemplateName], instances : Map[SFeatureType, SFeatureVal]) : SFeatureTemplate = {
+  def build(name : String, parents : List[SFeatureTemplateName], instances : Map[SFeatureType, SFeatureVal]) : SFeatureTemplate = {
     val n = SFeatureTemplateName(name)
     SFeatureTemplate(generateId(n.id), n, parents, instances)
   }
@@ -68,4 +68,7 @@ object SFeatureVal extends IdentifiableCompanion {
   def apply(value : String) : SFeatureVal = {
     SFeatureVal(prefix + value, value)
   }
+  /*def unapply(f : SFeatureVal) : Option[(String, String)] = {
+    Some((f.id, f.value))
+  }*/
 }
