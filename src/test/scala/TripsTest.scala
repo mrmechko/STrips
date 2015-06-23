@@ -47,6 +47,10 @@ class DoesNotCrashTest extends FlatSpec with Matchers {
     ont.findWordPosClasses("cat", SPos("noun")).foreach(x => println(x.u))
     ont.findSenseClasses("cat%1:05:00::").foreach(x => println(x.u))
   }
+
+  "the path to root functions" should "work" in {
+    ont.findSenseClasses("cat%1:05:00::").map(ont.pathToRoot(_)).map(_.map(t => t.u)).foreach(x=>println(x.mkString("->")))
+  }
 }
 
 /**

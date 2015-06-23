@@ -16,6 +16,13 @@ case class STripsOntology(version : String, nodes : List[STripsOntItem], words :
 
   lazy val senseMap = nodes.flatMap(n => n.wordnetKeys.map(k => k->n)).groupBy(p => p._1).mapValues(n=>n.map(x => x._2.name))
 
+  def pathToRoot(ontName : STripsOntName) : List[STripsOntName] = {
+    inheritance.get(ontName) match {
+      case Some(x) => pathToRoot(x).+:(ontName)
+      case None => List(ontName)
+    }
+  }
+
   def findWordClasses(lemma : String) : List[STripsOntName] = {
     wordMap.get(lemma) match {
       case Some(x) => x.flatMap(_.ontTypes).distinct
