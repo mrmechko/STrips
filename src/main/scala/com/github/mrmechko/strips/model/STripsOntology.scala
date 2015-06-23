@@ -2,12 +2,46 @@ package com.github.mrmechko.strips.model
 
 import java.io.File
 
-import com.github.mrmechko.swordnet.structures.SPos
+import com.github.mrmechko.swordnet.structures.{SRelationType, SKey, SPos}
 
 import scala.xml.{NodeSeq, XML}
 
 
-case class STripsOntology(version : String, nodes : List[STripsOntItem], words : List[STripsWord], inheritance : Map[STripsOntName, STripsOntName])
+case class STripsOntology(version : String, nodes : List[STripsOntItem], words : List[STripsWord], inheritance : Map[STripsOntName, STripsOntName]) {
+  lazy val wordMap = words.groupBy(x => x.value)
+  lazy val wordPosMap = words.groupBy(x => (x.value, x.pos))
+
+  lazy val nodeByName = nodes.map(n => n.name -> n).toMap
+
+  lazy val senseMap = nodes.flatMap(n => n.wordnetKeys.map(k => k->n)).groupBy(p => p._1).mapValues(n=>n.map(x => x._2.name))
+
+  def findWordClasses(lemma : String) : List[STripsOntName] = {
+    wordMap.get(lemma) match {
+      case Some(x) => x.flatMap(_.ontTypes).distinct
+      case None => List()
+    }
+  }
+
+  def findWordPosClasses(lemma : String, pos : SPos) : List[STripsOntName] = {
+    wordPosMap.get((lemma, pos)) match {
+      case Some(x) => x.flatMap(_.ontTypes).distinct
+      case None => List()
+    }
+  }
+
+  def findSenseClasses(sense : String, ignore : Set[String] = Set()) : List[STripsOntName] = {
+    if(ignore.contains(sense)) List()
+    else {
+      senseMap.get(sense) match {
+        case Some(x) => x
+        case None => {
+          SKey(sense).hasSemantic(SRelationType.hypernym).flatMap(_.keys).distinct.flatMap(k => findSenseClasses(sense, ignore.+(sense))).distinct.toList
+        }
+      }
+    }
+  }
+
+}
 
 object STripsOntology {
 

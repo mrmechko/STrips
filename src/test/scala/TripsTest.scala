@@ -4,6 +4,7 @@ import com.github.mrmechko.strips.{THierarchy, LoadTrips, TConcept}
 import com.github.mrmechko.strips.simple.STripsQuery*/
 
 import com.github.mrmechko.strips.model.{STripsWord, STripsOntItem, STripsOntology}
+import com.github.mrmechko.swordnet.structures.SPos
 import org.scalatest.{FlatSpec, Matchers}
 import play.api.libs.json.Json
 import com.github.mrmechko.strips.json.Implicits._
@@ -39,6 +40,12 @@ class DoesNotCrashTest extends FlatSpec with Matchers {
 
     println("redeemed")
     ont.toString shouldBe redeemed.get.toString
+  }
+  
+  "the word finder functions" should "work" in {
+    ont.findWordClasses("cat").foreach(x => println(x.u))
+    ont.findWordPosClasses("cat", SPos("noun")).foreach(x => println(x.u))
+    ont.findSenseClasses("cat%1:05:00::").foreach(x => println(x.u))
   }
 }
 
