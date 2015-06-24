@@ -44,8 +44,12 @@ class DoesNotCrashTest extends FlatSpec with Matchers {
   
   "the word finder functions" should "work" in {
     ont.findWordClasses("cat").foreach(x => println(x.u))
+    println("---")
     ont.findWordPosClasses("cat", SPos("noun")).foreach(x => println(x.u))
+    println("---")
     ont.findSenseClasses("cat%1:05:00::").foreach(x => println(x.u))
+    println("---")
+    ont.findAllClasses("cat").foreach(x => println(x.u))
   }
 
   "the path to root functions" should "work" in {

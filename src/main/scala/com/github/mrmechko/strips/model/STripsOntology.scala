@@ -2,6 +2,7 @@ package com.github.mrmechko.strips.model
 
 import java.io.File
 
+import com.github.mrmechko.swordnet.SWordNet
 import com.github.mrmechko.swordnet.structures.{SRelationType, SKey, SPos}
 import com.typesafe.config.ConfigFactory
 
@@ -35,6 +36,10 @@ case class STripsOntology(version : String, nodes : List[STripsOntItem], words :
       case Some(x) => x.flatMap(_.ontTypes).distinct
       case None => List()
     }
+  }
+
+  def findAllClasses(lemma : String) : List[STripsOntName] = {
+    (SWordNet.l2S(lemma).flatMap(k => findSenseClasses(k.key))++(findWordClasses(lemma))).distinct.toList
   }
 
   def findSenseClasses(sense : String, ignore : Set[String] = Set()) : List[STripsOntName] = {
