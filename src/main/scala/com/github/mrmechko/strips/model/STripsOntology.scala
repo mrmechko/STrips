@@ -39,7 +39,11 @@ case class STripsOntology(version : String, nodes : List[STripsOntItem], words :
   }
 
   def findAllClasses(lemma : String) : List[STripsOntName] = {
-    (SWordNet.l2S(lemma).flatMap(k => findSenseClasses(k.key))++(findWordClasses(lemma))).distinct.toList
+    findAllSenseClasses(lemma)++(findWordClasses(lemma)).distinct
+  }
+
+  def findAllSenseClasses(lemma : String) : List[STripsOntName] = {
+    SWordNet.l2S(lemma).flatMap(k => findSenseClasses(k.key)).distinct.toList
   }
 
   def findSenseClasses(sense : String, ignore : Set[String] = Set()) : List[STripsOntName] = {
