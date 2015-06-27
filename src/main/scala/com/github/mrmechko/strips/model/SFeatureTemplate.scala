@@ -1,4 +1,6 @@
 package com.github.mrmechko.strips.model
+import monocle.macros.{GenLens, Lenses}
+
 
 sealed trait SFeatureTemplateName extends UniquelyIdentifiable
 
@@ -10,15 +12,23 @@ object SFeatureTemplateName extends IdentifiableCompanion {
   def apply(name : String) : SFeatureTemplateName = {
     SFeatureTemplateNameImpl(generateId(name))
   }
+
+  def build(name : String) : SFeatureTemplateName = apply(name)
 }
 
-case class SFeatureTemplate(id : String, name : SFeatureTemplateName, parents : List[SFeatureTemplateName], instances : Map[SFeatureType, SFeatureVal]) extends UniquelyIdentifiable
+@Lenses("_") case class SFeatureTemplate(id : String, name : SFeatureTemplateName, parents : List[SFeatureTemplateName], instances : Map[SFeatureType, SFeatureVal]) extends UniquelyIdentifiable
 
 object SFeatureTemplate extends IdentifiableCompanion {
   override def prefix: String = "T::"
-  def build(name : String, parents : List[SFeatureTemplateName], instances : Map[SFeatureType, SFeatureVal]) : SFeatureTemplate = {
+  //There are only 4 predef templates
+  def build(name : String, parents : String, instances : Map[SFeatureType, SFeatureVal]) : SFeatureTemplate = {
     val n = SFeatureTemplateName(name)
-    SFeatureTemplate(generateId(n.id), n, parents, instances)
+    val np = if (parents.startsWith("(?")) {
+      List[SFeatureTemplateName]()
+    } else {
+      List[SFeatureTemplateName](SFeatureTemplateName(parents))
+    }
+    SFeatureTemplate(generateId(n.id), n, np, instances)
   }
 }
 
@@ -31,6 +41,8 @@ object SFeatureType extends IdentifiableCompanion {
   override def prefix: String = "F::"
   private case class SFeatureTypeImpl$(name : String) extends SFeatureType {
     override def id: String = prefix+name.stripPrefix(SFeatureType.prefix)
+
+    override def toString : String = "SFeatureType(%s)".format(name)
   }
 
   val aspect : SFeatureType = SFeatureTypeImpl$("aspect")
@@ -68,6 +80,8 @@ object SFeatureVal extends IdentifiableCompanion {
   def apply(value : String) : SFeatureVal = {
     SFeatureVal(prefix + value, value)
   }
+
+  def build(value : String) : SFeatureVal = apply(value)
   /*def unapply(f : SFeatureVal) : Option[(String, String)] = {
     Some((f.id, f.value))
   }*/

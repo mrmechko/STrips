@@ -2,19 +2,36 @@ package com.github.mrmechko.strips.model
 
 import java.io.File
 
+import com.github.mrmechko.swordnet.SWordNet
 import com.github.mrmechko.swordnet.structures.{SRelationType, SKey, SPos}
 import com.typesafe.config.ConfigFactory
 
 import scala.xml.{NodeSeq, XML}
 
+import monocle.macros.{GenLens, Lenses}
 
-case class STripsOntology(version : String, nodes : List[STripsOntItem], words : List[STripsWord], inheritance : Map[STripsOntName, STripsOntName]) {
+
+// STripsFeatureTemplate should be a list in STripsOntology rather than elements of STripsOntology
+// This is to facilitate easy modification of the elements and easy searching.
+@Lenses("_") case class STripsOntology(
+  version : String,
+  nodes : List[STripsOntItem],
+  words : List[STripsWord],
+  inheritance : Map[STripsOntName, STripsOntName]
+  ) {
   lazy val wordMap = words.groupBy(x => x.value)
   lazy val wordPosMap = words.groupBy(x => (x.value, x.pos))
 
   lazy val nodeByName = nodes.map(n => n.name -> n).toMap
 
   lazy val senseMap = nodes.flatMap(n => n.wordnetKeys.map(k => k->n)).groupBy(p => p._1).mapValues(n=>n.map(x => x._2.name))
+
+  def pathToRoot(ontName : STripsOntName) : List[STripsOntName] = {
+    inheritance.get(ontName) match {
+      case Some(x) => pathToRoot(x).+:(ontName)
+      case None => List(ontName)
+    }
+  }
 
   def findWordClasses(lemma : String) : List[STripsOntName] = {
     wordMap.get(lemma) match {
@@ -30,6 +47,18 @@ case class STripsOntology(version : String, nodes : List[STripsOntItem], words :
     }
   }
 
+  def findAllClasses(lemma : String) : List[STripsOntName] = {
+    findAllSenseClasses(lemma)++(findWordClasses(lemma)).distinct
+  }
+
+  def findAllSenseClasses(lemma : String) : List[STripsOntName] = {
+    SWordNet.l2S(lemma).flatMap(k => findSenseClasses(k.key)).distinct.toList
+  }
+
+  def findClassBySense(lemma : String) : List[(String, STripsOntName)] ={
+    List()
+  }
+
   def findSenseClasses(sense : String, ignore : Set[String] = Set()) : List[STripsOntName] = {
     if(ignore.contains(sense)) List()
     else {
@@ -40,6 +69,10 @@ case class STripsOntology(version : String, nodes : List[STripsOntItem], words :
         }
       }
     }
+  }
+
+  def findOntByString(ont : String) : Option[STripsOntItem]  = {
+    nodeByName.get(STripsOntName.build(ont))
   }
 
 }
@@ -53,7 +86,12 @@ object STripsOntology {
   }
 
 
-  private def nodeSeq2Features(n : NodeSeq) : List[(SFeatureType, SFeatureVal)] = List()
+  // TODO : Try each possible feature type safely
+  private def nodeSeq2Features(n : NodeSeq) : Map[SFeatureType, SFeatureVal] = {
+    SFeatureType.features.map(f => {
+      f -> (n \@ f.name)//.text
+    }).filter(_._2 != "").map(x => (x._1 -> SFeatureVal(x._2))).toMap
+  }
   private def nodeSeq2Frame(n : NodeSeq) : List[SFrame] = {
     n.map(m => {
       val role = (m \\ "@role").text
@@ -63,14 +101,17 @@ object STripsOntology {
       SFrame(role, optionality, fltype, List())
     }).toList
   }
-  private def nodeSeq2FeatureTempl(n : NodeSeq) : SFeatureTemplate = SFeatureTemplate.build("empty", List(), Map())
+  private def nodeSeq2FeatureTempl(name : String, n : NodeSeq) : SFeatureTemplate =  {
+
+    SFeatureTemplate.build(name, (n \@ "fltype"), nodeSeq2Features(n \\ "FEATURES"))
+  }
 
   def readTripsOntologyXML(path2directory:String = defaultPath) : STripsOntology = {
 
     val words = readTripsLexiconKeys(path2directory)
     val ontname2word = words.flatMap(x => x.ontTypes.map(y => y -> x)).groupBy(v => v._1).mapValues(x=>x.map(_._2))
     System.err.println("loading ontItems...")
-    val ontItems = getListOfSubDirectories(path2directory, "ONT::")/*.filter(_.toLowerCase().startsWith("ont::a"))*/.map(e => {
+    val ontItems = getListOfSubDirectories(path2directory, "ONT_")/*.filter(_.toLowerCase().startsWith("ont::a"))*/.map(e => {
       val f = XML.loadFile(path2directory+e) \\ "ONTTYPE"
       /**
        * id           : String,
@@ -87,7 +128,7 @@ object STripsOntology {
       val parent = STripsOntName.build(f \@ "parent")
 
       val semFeats = (f \\ "SEM")
-      val features = nodeSeq2FeatureTempl(semFeats \ "FEATURES") // figure out how to parse this
+      val features = nodeSeq2FeatureTempl(name.name, semFeats) // figure out how to parse this. Should take the whole sem object
       val frames = nodeSeq2Frame(f \ "ARGUMENT")
 
       val wordnet = (f \ "MAPPING").filter(m => (m \@ "to") == "wordnet").map(_ \@ "name").toList
@@ -102,7 +143,7 @@ object STripsOntology {
 
   def readTripsLexiconKeys(path2directory:String = defaultPath): List[STripsWord] = {
     System.err.println("loading words from "+path2directory)
-    getListOfSubDirectories(path2directory, "W::")/*.filter(_.toLowerCase().startsWith("w::a"))*/.flatMap(e => {
+    getListOfSubDirectories(path2directory, "W_")/*.filter(_.toLowerCase().startsWith("w::a"))*/.flatMap(e => {
       val f = XML.loadFile(path2directory+e)
       val word = (f \\ "WORD" \ "@name").text
       //printf("W::%s\n", word)

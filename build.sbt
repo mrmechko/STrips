@@ -2,7 +2,7 @@ name := "strips"
 
 organization := "com.github.mrmechko"
 
-version := "2.0.0-SNAPSHOT"
+version := "2.0.0-M1-SNAPSHOT"
 
 scalaVersion := "2.11.6"
 
@@ -15,6 +15,19 @@ libraryDependencies += "org.scalamock" %% "scalamock-scalatest-support" % "3.2" 
 libraryDependencies += "com.github.mrmechko" %% "swordnet" % "2.0-SNAPSHOT"
 
 libraryDependencies += "com.typesafe.play" %% "play-json" % "2.4.0-M2"
+
+val lensVersion = "1.1.1"   // or "1.2.0-SNAPSHOT"
+
+libraryDependencies ++= Seq(
+  "com.github.julien-truffaut"  %%  "monocle-core"    % lensVersion,
+  "com.github.julien-truffaut"  %%  "monocle-generic" % lensVersion,
+  "com.github.julien-truffaut"  %%  "monocle-macro"   % lensVersion,
+  "com.github.julien-truffaut"  %%  "monocle-law"     % lensVersion % "test",
+  compilerPlugin("org.scalamacros" %% "paradise" % "2.0.1" cross CrossVersion.full)
+)
+
+//addCompilerPlugin("org.scalamacros" %% "paradise" % "2.0.1" cross CrossVersion.full)
+
 
 libraryDependencies := {
   CrossVersion.partialVersion(scalaVersion.value) match {
