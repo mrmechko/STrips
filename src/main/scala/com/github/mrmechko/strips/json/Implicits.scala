@@ -12,7 +12,7 @@ import play.api.libs.functional.syntax._
 object Implicits {
 
   //SFeatureType => get statically
-  implicit val SFeatureTypeWrites : Writes[SFeatureType] = new Writes[SFeatureType] {
+/*  implicit val SFeatureTypeWrites : Writes[SFeatureType] = new Writes[SFeatureType] {
     override def writes(o: SFeatureType): JsValue = Json.obj("name" -> o.name)
   }
 
@@ -27,17 +27,17 @@ object Implicits {
 
   implicit val SFeatureValReads : Reads[SFeatureVal] = (JsPath \ "name").read[String].map(SFeatureVal.apply(_))
 
-
+*/
   implicit val SFTSVVpairWrites : Writes[(SFeatureType, SFeatureVal)] = new Writes[(SFeatureType, SFeatureVal)] {
     override def writes(o: (SFeatureType, SFeatureVal)): JsValue = Json.obj(
-      "type"->o._1,
-      "value"->o._2
+      "feature"->o._1.name,
+      "value"->o._2.value
     )
   }
 
   implicit val SFTSVVpairReads : Reads[(SFeatureType, SFeatureVal)] = (
-    (JsPath \ "type").read[SFeatureType] and (JsPath \ "value").read[SFeatureVal]
-    )((_,_))
+    (JsPath \ "feature").read[String] and (JsPath \ "value").read[String]
+  )(((x,y) => (SFeatureType.is(x),SFeatureVal.build(y))))
 
   //SFeatureTemplateName(id : String)
   implicit val SFeatureTemplateNameWrites : Writes[SFeatureTemplateName] = new Writes[SFeatureTemplateName] {
@@ -46,7 +46,7 @@ object Implicits {
     )
   }
 
-  implicit val SFeatureTemplateNameReads : Reads[SFeatureTemplateName] = (JsPath \ "id").read[String].map(SFeatureTemplateName(_))
+  implicit val SFeatureTemplateNameReads : Reads[SFeatureTemplateName] = (JsPath \ "id").read[String].map(SFeatureTemplateName.build(_))
 
 
   //SFeatureTemplate(id : String, name : SFeatureTemplateName, parents : List[SFeatureTemplateName], instances : Map[SFeatureType, SFeatureVal])
@@ -114,28 +114,34 @@ object Implicits {
     lexicalItems : List[STripsWord],
     wordnetKeys : List[String],
     features : SFeatureTemplate,
-    frame : List[SFrame]
+    frame : List[SFrame],
+    gloss : String,
+    examples : List[String]
   )*/
 
   implicit val STripsOntItemWrites : Writes[STripsOntItem] = new Writes[STripsOntItem] {
     override def writes(o: STripsOntItem): JsValue = Json.obj(
       "id" -> o.id,
-      "name" -> o.name,
+      "ont" -> o.name,
       "lex" -> o.lexicalItems,
       "wordNetKeys" -> o.wordnetKeys,
       "feats" -> o.features,
-      "frames" -> o.frame
+      "frames" -> o.frame,
+      "gloss" -> o.gloss,
+      "examples" -> o.examples
     )
   }
 
   implicit val STripsOntItemReads : Reads[STripsOntItem] = (
     (JsPath \ "id").read[String] and
-      (JsPath \ "name").read[STripsOntName] and
+      (JsPath \ "ont").read[STripsOntName] and
       (JsPath \ "lex").read[List[STripsWord]] and
       (JsPath \ "wordNetKeys").read[List[String]] and
       (JsPath \ "feats").read[SFeatureTemplate] and
-      (JsPath \ "frames").read[List[SFrame]]
-    )(STripsOntItem.apply(_,_,_,_,_,_))
+      (JsPath \ "frames").read[List[SFrame]] and
+      (JsPath \ "gloss").read[String] and
+      (JsPath \ "examples").read[List[String]]
+    )(STripsOntItem.apply(_,_,_,_,_,_,_,_))
 
   implicit val STOSTOTupleWrites : Writes[(STripsOntName, STripsOntName)] = new Writes[(STripsOntName, STripsOntName)] {
     override def writes(o: (STripsOntName, STripsOntName)): JsValue = Json.obj(

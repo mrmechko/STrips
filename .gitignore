@@ -1,5 +1,12 @@
 # Created by https://www.gitignore.io
 
+### Ensime ###
+.ensime
+.ensime_cache/
+
+### Atom-CTAGS ###
+.tags*
+
 ### Intellij ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
 
@@ -79,4 +86,3 @@ project/plugins/project/
 # Scala-IDE specific
 .scala_dependencies
 .worksheet
-
