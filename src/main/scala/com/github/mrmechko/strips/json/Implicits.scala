@@ -82,13 +82,13 @@ object Implicits {
       "id" -> o.id,
       "value" -> o.value,
       "pos"-> o.pos.asString,
-      "ontTypes" -> o.ontTypes
+      "ontTypes" -> o.ontTypes.map(_.name)
     )
   }
 
   implicit val STripsWordReads : Reads[STripsWord] = (
-    (JsPath \ "id").read[String] and (JsPath \ "value").read[String] and (JsPath \ "pos").read[String] and (JsPath \ "ontTypes").read[List[STripsOntName]]
-    )((x,x1,y,z)=>(STripsWord.apply(x,x1,SPos(y),z)))
+    (JsPath \ "id").read[String] and (JsPath \ "value").read[String] and (JsPath \ "pos").read[String] and (JsPath \ "ontTypes").read[List[String]]
+  )((x,x1,y,z)=>(STripsWord.apply(x,x1,SPos(y),z.map(STripsOntName.build(_)))))
 
 
   //SFrame(role : String, optional : Boolean, fltype : String, features : List[(SFeatureType, SFeatureVal)])
@@ -122,7 +122,7 @@ object Implicits {
   implicit val STripsOntItemWrites : Writes[STripsOntItem] = new Writes[STripsOntItem] {
     override def writes(o: STripsOntItem): JsValue = Json.obj(
       "id" -> o.id,
-      "ont" -> o.name,
+      "ont" -> o.name.name,
       "lex" -> o.lexicalItems,
       "wordNetKeys" -> o.wordnetKeys,
       "feats" -> o.features,
@@ -134,24 +134,24 @@ object Implicits {
 
   implicit val STripsOntItemReads : Reads[STripsOntItem] = (
     (JsPath \ "id").read[String] and
-      (JsPath \ "ont").read[STripsOntName] and
+      (JsPath \ "ont").read[String] and
       (JsPath \ "lex").read[List[STripsWord]] and
       (JsPath \ "wordNetKeys").read[List[String]] and
       (JsPath \ "feats").read[SFeatureTemplate] and
       (JsPath \ "frames").read[List[SFrame]] and
       (JsPath \ "gloss").read[String] and
       (JsPath \ "examples").read[List[String]]
-    )(STripsOntItem.apply(_,_,_,_,_,_,_,_))
+    )((id,ont,lex,wnk,feat,frame,gloss,examples) => STripsOntItem.apply(id,STripsOntName.build(ont),lex,wnk,feat,frame,gloss,examples))
 
   implicit val STOSTOTupleWrites : Writes[(STripsOntName, STripsOntName)] = new Writes[(STripsOntName, STripsOntName)] {
     override def writes(o: (STripsOntName, STripsOntName)): JsValue = Json.obj(
-      "child"->o._1,
-      "parent"->o._2
+      "child"->o._1.name,
+      "parent"->o._2.name
     )
   }
 
   implicit val STOSTOTupleReads : Reads[(STripsOntName, STripsOntName)] =
-    ((JsPath \ "child").read[STripsOntName] and (JsPath \ "parent").read[STripsOntName])((_,_))
+    ((JsPath \ "child").read[String] and (JsPath \ "parent").read[String])((x,y)=>(STripsOntName.build(x),STripsOntName.build(y)))
 
   //STripsOntology(version : String, nodes : List[STripsOntItem], words : List[STripsWord], inheritance : Map[STripsOntName, STripsOntName]) {
   implicit val STripsOntologyWrites : Writes[STripsOntology] = new Writes[STripsOntology] {
