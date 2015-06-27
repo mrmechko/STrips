@@ -10,3 +10,12 @@ after_success: sbt coveralls
 notifications:
   slack:
     secure: Lh7qHho/gF7OhrCDAjxUF6L9Vhxt7oduUD49Cxt6TIbcSRbaaTRbXpfBgsukJtHMSaJv8WLf+HVvDtlKwnQVY0q79khem138lDti4TmV70TctFuAgUyRMNYbCl+7lOp8ptbC8dU07g/mjeAk8viNtOEn8s9wXKFE1BFO0UeUBcd3vBanACx3+ozlJaAy3dJLXgVbNpveXQB5mgamXxUzL9WFH9qIiIz/yceHHMuH90qQGzttWAu27B++5qBFD7fC95uWOvYNWMCFmxsCvAhJu6A66bjvpwvqd47Uv6BsPG2CiJk3szQIxLds1sCHYxZDDdwMWZCMj2+zr6PiLBmhdDVP1AhoZCEcUFd5Ah5aNSwDQHGM0pLHlOVdhWI68nTTRE1xSuCi79MPDbARqmoOcqz9w5BFdLe2wggClvyTWK74a96Knx2d+TaZav17UIA+oiF+qi/DMlOCeGjvm11O1GbXZ3nyUJ5fbFnncc6OYperNcMk+UbV8ctKBlZFGDMBQi8jbvQAj69q1LPpqGw7P58c4uzeB8x8/QIE8rKRCubdct3NIobsfPRGIYwECI0xMUlKqVFIdk7TEeqVfSLD7BZnL1YqzgbDp0eGjOOC1oWofzbA0kFxNPap1PNXKNFNnPdfPj1tjaFPFacbeEKy7CCWsJ4juo2RdooGryY9wbA=
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/53f935c3c09a9726ce31
+    on_success: change  # options: [always|never|change] default: always
+    on_failure: always  # options: [always|never|change] default: always
+    on_start: false     # default: false
+
+
+
