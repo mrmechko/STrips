@@ -1,5 +1,8 @@
 # Created by https://www.gitignore.io
 
+### ont_test.json ###
+ont_test.json
+
 ### Ensime ###
 .ensime
 .ensime_cache/

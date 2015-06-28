@@ -20,18 +20,10 @@ class DoesNotCrashTest extends FlatSpec with Matchers {
   printf("there are %d nodes", ont.nodes.size)
 
   "A STripsOntItem" should "be jsonifyable" in {
-    ont.nodes.foreach { n =>
+    val res = ont.nodes.foreach { n =>
       val json = Json.toJson(n)
       val redeemed = Json.fromJson[STripsOntItem](json).asOpt
-
-      /*redeemed match {
-        case Some(x) => printf("deserialized: %s\n", x.name.u)
-        case None => {
-          printf("failed: %s\n", n.name.u)
-          println(Json.prettyPrint(json))
-        }
-      }*/
-      redeemed.get.toString shouldBe n.toString
+      n shouldBe redeemed.get
     }
   }
 
@@ -43,7 +35,7 @@ class DoesNotCrashTest extends FlatSpec with Matchers {
     ont.words.foreach { n =>
       val json = Json.toJson(n)
       val redeemed = Json.fromJson[STripsWord](json)
-      redeemed.get.toString shouldBe n.toString
+      (redeemed.get == n) shouldBe true
     }
   }
 
@@ -54,7 +46,12 @@ class DoesNotCrashTest extends FlatSpec with Matchers {
     val redeemed = Json.fromJson[STripsOntology](json)
     println("redeemed")
 
-    ont.toString shouldBe redeemed.get.toString
+    import java.io._
+    val pw = new PrintWriter(new File("ont_test.json"))
+    pw.write(Json.prettyPrint(json))
+    pw.close
+
+    (ont == redeemed.get) shouldBe true
   }
 
   "Lenses" should "be able to get and set OntItem fields" in {
@@ -67,16 +64,16 @@ class DoesNotCrashTest extends FlatSpec with Matchers {
   }
 
   "the word finder functions" should "work" in {
-    ont.findWordClasses("cat")//.foreach(x => println(x.u))
+    ont.findWordClasses("cat") //.foreach(x => println(x.u))
     println("---")
-    ont.findWordPosClasses("cat", SPos("noun"))//.foreach(x => println(x.u))
+    ont.findWordPosClasses("cat", SPos("noun")) //.foreach(x => println(x.u))
     println("---")
-    ont.findSenseClasses("cat%1:05:00::")//.foreach(x => println(x.u))
+    ont.findSenseClasses("cat%1:05:00::") //.foreach(x => println(x.u))
     println("---")
-    ont.findAllClasses("cat")//.foreach(x => println(x.u))
+    ont.findAllClasses("cat") //.foreach(x => println(x.u))
   }
 
   "the path to root functions" should "work" in {
-    ont.findSenseClasses("cat%1:05:00::").map(ont.pathToRoot(_)).map(_.map(t => t.u))//.foreach(x => println(x.mkString("->")))
+    ont.findSenseClasses("cat%1:05:00::").map(ont.pathToRoot(_)).map(_.map(t => t.u)) //.foreach(x => println(x.mkString("->")))
   }
 }

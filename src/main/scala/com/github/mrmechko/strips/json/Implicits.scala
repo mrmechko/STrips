@@ -11,23 +11,6 @@ import play.api.libs.functional.syntax._
 
 object Implicits {
 
-  //SFeatureType => get statically
-/*  implicit val SFeatureTypeWrites : Writes[SFeatureType] = new Writes[SFeatureType] {
-    override def writes(o: SFeatureType): JsValue = Json.obj("name" -> o.name)
-  }
-
-  implicit val SFeatureTypeReads : Reads[SFeatureType] = (JsPath \ "name").read[String].map(SFeatureType.is(_))
-
-  //SFeatureVal(id : String, value : String)
-  implicit val SFeatureValWrites : Writes[SFeatureVal] = new Writes[SFeatureVal] {
-    def writes(fval: SFeatureVal) = Json.obj(
-      "value" -> fval.value
-    )
-  }
-
-  implicit val SFeatureValReads : Reads[SFeatureVal] = (JsPath \ "name").read[String].map(SFeatureVal.apply(_))
-
-*/
   implicit val SFTSVVpairWrites : Writes[(SFeatureType, SFeatureVal)] = new Writes[(SFeatureType, SFeatureVal)] {
     override def writes(o: (SFeatureType, SFeatureVal)): JsValue = Json.obj(
       "feature"->o._1.name,
@@ -39,32 +22,21 @@ object Implicits {
     (JsPath \ "feature").read[String] and (JsPath \ "value").read[String]
   )(((x,y) => (SFeatureType.is(x),SFeatureVal.build(y))))
 
-  //SFeatureTemplateName(id : String)
-  implicit val SFeatureTemplateNameWrites : Writes[SFeatureTemplateName] = new Writes[SFeatureTemplateName] {
-    override def writes(o: SFeatureTemplateName): JsValue = Json.obj(
-      "id" -> o.id
-    )
-  }
-
-  implicit val SFeatureTemplateNameReads : Reads[SFeatureTemplateName] = (JsPath \ "id").read[String].map(SFeatureTemplateName.build(_))
-
 
   //SFeatureTemplate(id : String, name : SFeatureTemplateName, parents : List[SFeatureTemplateName], instances : Map[SFeatureType, SFeatureVal])
   implicit val SFeatureTemplateWrites : Writes[SFeatureTemplate] = new Writes[SFeatureTemplate] {
     override def writes(o: SFeatureTemplate): JsValue = Json.obj(
-      "id" -> o.id,
-      "name" -> o.name,
-      "parents" -> o.parents,
+      "name" -> o.id,
+      "parents" -> o.parents.map(_.id),
       "instances" -> o.instances.toList
     )
   }
 
   implicit val SFeatureTemplateReads : Reads[SFeatureTemplate] = (
-      (JsPath \ "id").read[String] and
-        (JsPath \ "name").read[SFeatureTemplateName] and
-        (JsPath \ "parents").read[List[SFeatureTemplateName]] and
+        (JsPath \ "name").read[String] and
+        (JsPath \ "parents").read[List[String]] and
         (JsPath \ "instances").read[List[(SFeatureType, SFeatureVal)]]
-    )((id,name,parents,instanceList) => SFeatureTemplate.apply(id,name,parents,instanceList.toMap))
+    )((name,parents,instanceList) => SFeatureTemplate.apply(name,SFeatureTemplateName.build(name),parents.map(SFeatureTemplateName.build(_)),instanceList.toMap))
 
   //STripsOntName(id : String, name : String)
   implicit val STripsOntNameWrites : Writes[STripsOntName] = new Writes[STripsOntName] {
@@ -125,7 +97,7 @@ object Implicits {
       "ont" -> o.name.name,
       "lex" -> o.lexicalItems,
       "wordNetKeys" -> o.wordnetKeys,
-      "feats" -> o.features,
+      "templ" -> o.features,
       "frames" -> o.frame,
       "gloss" -> o.gloss,
       "examples" -> o.examples
@@ -137,7 +109,7 @@ object Implicits {
       (JsPath \ "ont").read[String] and
       (JsPath \ "lex").read[List[STripsWord]] and
       (JsPath \ "wordNetKeys").read[List[String]] and
-      (JsPath \ "feats").read[SFeatureTemplate] and
+      (JsPath \ "templ").read[SFeatureTemplate] and
       (JsPath \ "frames").read[List[SFrame]] and
       (JsPath \ "gloss").read[String] and
       (JsPath \ "examples").read[List[String]]
