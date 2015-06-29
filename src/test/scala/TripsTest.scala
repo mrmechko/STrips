@@ -3,7 +3,7 @@ import com.github.mrmechko.strips.{THierarchy, LoadTrips, TConcept}
 
 import com.github.mrmechko.strips.simple.STripsQuery*/
 
-import com.github.mrmechko.strips.model.{ STripsWord, STripsOntItem, STripsOntology, STripsOntName }
+import com.github.mrmechko.strips.model._ //{ STripsWord, STripsOntItem, STripsOntology, STripsOntName, SFrame }
 import com.github.mrmechko.strips.modify.{ReplaceGloss, ReplaceMultipleGlosses}
 import com.github.mrmechko.swordnet.structures.SPos
 import org.scalatest.{ FlatSpec, Matchers }
@@ -29,7 +29,11 @@ class DoesNotCrashTest extends FlatSpec with Matchers {
   }
 
   "A STripsOntItem" should "have the correct features" in {
-    println(ont.nodeByName(STripsOntName.build("accept")))
+    val acc = ont.nodeByName(STripsOntName.build("accept"))
+
+    val testFrame = SFrame("spatial-loc", true, "?!type", List())
+
+    acc.frame.contains(testFrame) shouldBe true
   }
 
   "A STripsWord" should "be jsonifyable" in {
