@@ -5,6 +5,7 @@ package com.github.mrmechko.strips.json
  */
 
 import com.github.mrmechko.strips.model._
+import com.github.mrmechko.strips.modify._
 import com.github.mrmechko.swordnet.structures.SPos
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
@@ -141,4 +142,30 @@ object Implicits {
       (JsPath \ "words").read[List[STripsWord]] and
       (JsPath \ "inheritance").read[List[(STripsOntName, STripsOntName)]]
     )((v,n,w,i) => (STripsOntology(v, n, w, i.toMap)))
+}
+
+object ModImplicits {
+  import Implicits._
+
+  implicit val ReplaceGlossWrites : Writes[ReplaceGloss] = new Writes[ReplaceGloss] {
+    override def writes(o : ReplaceGloss) : JsValue = Json.obj(
+      "target" -> o.target.name,
+      "gloss" -> o.gloss
+    )
+  }
+
+  implicit val ReplaceGlossReads : Reads[ReplaceGloss] = (
+    (JsPath \ "target").read[String] and
+    (JsPath \ "gloss").read[String]
+  )((x,y) => ReplaceGloss(STripsOntName.build(x), y))
+
+  implicit val ReplaceMultipleGlossesWrites : Writes[ReplaceMultipleGlosses] = new Writes[ReplaceMultipleGlosses] {
+    override def writes(o : ReplaceMultipleGlosses) : JsValue= Json.obj(
+      "repOps" -> o.repOps
+    )
+  }
+
+  implicit val ReplaceMultipleGlossesReads : Reads[ReplaceMultipleGlosses] =
+    (JsPath \ "repOps").read[List[ReplaceGloss]]
+    .map(ReplaceMultipleGlosses(_))
 }
