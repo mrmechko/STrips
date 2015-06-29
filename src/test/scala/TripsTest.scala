@@ -28,6 +28,8 @@ class DoesNotCrashTest extends FlatSpec with Matchers {
     }
   }
 
+  def testOntFrames( ontName : STripsOntName, frames : List[SFrame]) = ???
+
   "A STripsOntItem" should "have the correct features" in {
     val acc = ont.nodeByName(STripsOntName.build("accept"))
 
