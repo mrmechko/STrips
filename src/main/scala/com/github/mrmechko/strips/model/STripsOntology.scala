@@ -22,7 +22,9 @@ import monocle.macros.{GenLens, Lenses}
   lazy val wordMap = words.groupBy(x => x.value)
   lazy val wordPosMap = words.groupBy(x => (x.value, x.pos))
 
-  lazy val nodeByName = nodes.map(n => n.name -> n).toMap
+  lazy val nameToIndex = nodes.zipWithIndex.map(n => n._1.name -> n._2).toMap
+  def nodeByName(name : STripsOntName) : STripsOntItem = nodes(nameToIndex(name))
+  def nodeByNameOpt(name : STripsOntName) : Option[STripsOntItem] = nameToIndex.get(name).map(nodes(_))
 
   lazy val senseMap = nodes.flatMap(n => n.wordnetKeys.map(k => k->n)).groupBy(p => p._1).mapValues(n=>n.map(x => x._2.name))
 
@@ -72,7 +74,7 @@ import monocle.macros.{GenLens, Lenses}
   }
 
   def findOntByString(ont : String) : Option[STripsOntItem]  = {
-    nodeByName.get(STripsOntName.build(ont))
+    nodeByNameOpt(STripsOntName.build(ont))
   }
 
 }

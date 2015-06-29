@@ -4,6 +4,7 @@ import com.github.mrmechko.strips.{THierarchy, LoadTrips, TConcept}
 import com.github.mrmechko.strips.simple.STripsQuery*/
 
 import com.github.mrmechko.strips.model.{ STripsWord, STripsOntItem, STripsOntology, STripsOntName }
+import com.github.mrmechko.strips.modify.{ReplaceGloss, ReplaceMultipleGlosses}
 import com.github.mrmechko.swordnet.structures.SPos
 import org.scalatest.{ FlatSpec, Matchers }
 import play.api.libs.json.Json
@@ -60,7 +61,62 @@ class DoesNotCrashTest extends FlatSpec with Matchers {
 
     STripsOntItem._gloss.get(n50) shouldBe ""
     STripsOntItem._gloss.set("thing")(n50) shouldBe n50n
+    STripsOntItem._gloss.set("thing")(n50).gloss shouldBe "thing"
 
+  }
+
+  "A gloss" should "be replaceable" in {
+    val newOnt = ReplaceGloss(STripsOntName.build("bread"), "food made from dough of flour or meal and usually raised with yeast or baking powder and then baked")(ont)
+
+    val json = Json.toJson(newOnt)
+    import java.io._
+    val pw = new PrintWriter(new File("ont_test_replace_gloss.json"))
+    pw.write(Json.prettyPrint(json))
+    pw.close
+  }
+
+  "A gloss collection" should "be writeable" in {
+    val rep1 = ReplaceGloss(STripsOntName.build("bread"), "food made from dough of flour or meal and usually raised with yeast or baking powder and then baked")
+
+    val rep2 = ReplaceGloss(STripsOntName.build("vehicle"), "a vehicle")
+
+    val repset = ReplaceMultipleGlosses(List(rep1, rep2))
+
+    val newOnt = repset(ont)
+
+    val json = Json.toJson(newOnt)
+    import java.io._
+    val pw = new PrintWriter(new File("ont_test_replace_multiple_gloss.json"))
+    pw.write(Json.prettyPrint(json))
+    pw.close
+  }
+
+  "A ReplaceGloss" should "be (de)serializeable" in {
+    val rep = ReplaceGloss(STripsOntName.build("bread"), "food made from dough of flour or meal and usually raised with yeast or baking powder and then baked")
+
+    import com.github.mrmechko.strips.json.ModImplicits._
+
+    val json = Json.toJson(rep)
+    println(Json.prettyPrint(json))
+    val redeemed = Json.fromJson[ReplaceGloss](json)
+
+    redeemed.get shouldBe rep
+  }
+
+  "A ReplaceMultipleGlosses" should "be (de)serializeable" in {
+    val rep1 = ReplaceGloss(STripsOntName.build("bread"), "food made from dough of flour or meal and usually raised with yeast or baking powder and then baked")
+
+    val rep2 = ReplaceGloss(STripsOntName.build("vehicle"), "a vehicle")
+
+    val repset = ReplaceMultipleGlosses(List(rep1, rep2))
+
+    import com.github.mrmechko.strips.json.ModImplicits._
+
+    val json = Json.toJson(repset)
+    println(Json.prettyPrint(json))
+    val redeemed = Json.fromJson[ReplaceMultipleGlosses](json)
+
+    redeemed.get shouldBe repset
   }
 
   "the word finder functions" should "work" in {
