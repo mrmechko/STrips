@@ -2,7 +2,7 @@ name := "strips"
 
 organization := "com.github.mrmechko"
 
-version := "2.0.0-M1-SNAPSHOT"
+version := "2.0.1-SNAPSHOT"
 
 scalaVersion := "2.11.6"
 
@@ -10,15 +10,14 @@ resolvers += Resolver.sonatypeRepo("releases")
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
-libraryDependencies += "org.scalamock" %% "scalamock-scalatest-support" % "3.2" % "test"
-
-libraryDependencies += "com.github.mrmechko" %% "swordnet" % "2.0-SNAPSHOT"
-
-libraryDependencies += "com.typesafe.play" %% "play-json" % "2.4.0-M2"
 
 val lensVersion = "1.1.1"   // or "1.2.0-SNAPSHOT"
 
+wartremoverWarnings ++= Warts.all
+
 libraryDependencies ++= Seq(
+  "com.typesafe.play" %% "play-json" % "2.4.0-M2",
+  "com.github.mrmechko" %% "swordnet" % "2.0-SNAPSHOT",
   "com.github.julien-truffaut"  %%  "monocle-core"    % lensVersion,
   "com.github.julien-truffaut"  %%  "monocle-generic" % lensVersion,
   "com.github.julien-truffaut"  %%  "monocle-macro"   % lensVersion,
