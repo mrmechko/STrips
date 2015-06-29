@@ -2,7 +2,7 @@ name := "strips"
 
 organization := "com.github.mrmechko"
 
-version := "2.0.0-M2-SNAPSHOT"
+version := "2.0.1-SNAPSHOT"
 
 scalaVersion := "2.11.6"
 
