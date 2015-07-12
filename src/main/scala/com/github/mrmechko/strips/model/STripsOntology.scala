@@ -58,7 +58,7 @@ import monocle.macros.{GenLens, Lenses}
   }
 
   def findClassBySense(lemma : String) : List[(String, STripsOntName)] ={
-    SWordNet.l2S(lemma).flatMap(k => k->findSenseClasses(k.key)).distinct.toList
+    SWordNet.l2S(lemma).flatMap(k => findSenseClasses(k.key).map(x => k.key -> x)).distinct.toList
   }
 
   def findSenseClasses(sense : String, ignore : Set[String] = Set()) : List[STripsOntName] = {
