@@ -24,7 +24,7 @@ object SFeatureTemplate extends IdentifiableCompanion {
   def build(name : String, parents : String, instances : Map[SFeatureType, SFeatureVal]) : SFeatureTemplate = {
     val n = SFeatureTemplateName(name)
     val np = if (parents.startsWith("(?")) {
-      List[SFeatureTemplateName]()
+      List[SFeatureTemplateName]() //TODO
     } else {
       List[SFeatureTemplateName](SFeatureTemplateName(parents))
     }
