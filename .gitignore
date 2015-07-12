@@ -2,6 +2,7 @@
 
 ### ont_test.json ###
 ont_test*.json
+redis-test/
 
 ### Ensime ###
 .ensime
